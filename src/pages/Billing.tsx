@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -99,6 +98,13 @@ const inventoryItems: InventoryItem[] = [
   },
 ];
 
+const GST_RATES: { [key: string]: number } = {
+  "Electronics": 18, // 18% GST for electronics
+  "Clothing": 5,    // 5% GST for clothing
+  "Health & Beauty": 12, // 12% GST for health and beauty products
+  "default": 18     // Default GST rate
+};
+
 export default function Billing() {
   const [search, setSearch] = useState("");
   const [showQrScannerDialog, setShowQrScannerDialog] = useState(false);
@@ -112,7 +118,6 @@ export default function Billing() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showProfitInfo, setShowProfitInfo] = useState(true);
   
-  // Generate unique bill number
   useEffect(() => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -123,7 +128,6 @@ export default function Billing() {
     setBillNumber(`INV-${year}${month}${day}-${random}`);
   }, []);
   
-  // Update search results
   useEffect(() => {
     if (search) {
       const filtered = inventoryItems.filter(item =>
@@ -136,7 +140,6 @@ export default function Billing() {
   }, [search]);
   
   const handleAddItem = (item: InventoryItem) => {
-    // Check if item is already in the bill
     const existingItem = billItems.find(i => i.id === item.id);
     
     if (existingItem) {
@@ -176,8 +179,12 @@ export default function Billing() {
   };
   
   const calculateGST = () => {
-    const subtotal = calculateSubtotal();
-    return subtotal * 0.18; // 18% GST
+    return billItems.reduce((sum, item) => {
+      const gstRate = GST_RATES[item.category] || GST_RATES.default;
+      const itemSubtotal = item.sellingPrice * item.quantity;
+      const itemGST = itemSubtotal * (gstRate / 100);
+      return sum + itemGST;
+    }, 0);
   };
   
   const calculateTotal = () => {
@@ -197,7 +204,6 @@ export default function Billing() {
       return;
     }
     
-    // Create bill object
     const bill = {
       billNumber,
       customerName,
@@ -210,23 +216,18 @@ export default function Billing() {
       date: new Date().toISOString(),
     };
     
-    // Get existing bills from localStorage
     const existingBills = JSON.parse(localStorage.getItem("bills") || "[]");
     
-    // Add new bill
     const updatedBills = [bill, ...existingBills];
     
-    // Save to localStorage
     localStorage.setItem("bills", JSON.stringify(updatedBills));
     
     toast.success("Bill saved successfully!");
     
-    // Clear current bill
     setBillItems([]);
     setCustomerName("");
     setCustomerPhone("");
     
-    // Generate new bill number
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -244,7 +245,6 @@ export default function Billing() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column: Item search and add */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -305,7 +305,6 @@ export default function Billing() {
                     </Button>
                   </div>
                   
-                  {/* Search results */}
                   {searchResults.length > 0 && (
                     <div className="border rounded-md max-h-60 overflow-y-auto">
                       <ul className="py-1">
@@ -327,7 +326,6 @@ export default function Billing() {
                     </div>
                   )}
                   
-                  {/* Selected item */}
                   {selectedItem && (
                     <div className="border rounded-md p-4 flex justify-between items-center">
                       <div>
@@ -360,7 +358,6 @@ export default function Billing() {
                 
                 <Separator />
                 
-                {/* Bill items */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-lg">Bill Items</h3>
                   
@@ -431,7 +428,6 @@ export default function Billing() {
           </Card>
         </div>
         
-        {/* Right column: Bill summary */}
         <div>
           <Card>
             <CardHeader>
@@ -446,18 +442,24 @@ export default function Billing() {
                   <span className="text-muted-foreground">Subtotal:</span>
                   <span>₹{calculateSubtotal().toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">CGST (9%):</span>
-                  <span>₹{(calculateGST() / 2).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">SGST (9%):</span>
-                  <span>₹{(calculateGST() / 2).toLocaleString()}</span>
-                </div>
+                
+                {billItems.map((item) => {
+                  const gstRate = GST_RATES[item.category] || GST_RATES.default;
+                  const itemSubtotal = item.sellingPrice * item.quantity;
+                  const itemGST = itemSubtotal * (gstRate / 100);
+                  return (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{item.name} GST ({gstRate}%):</span>
+                      <span>₹{itemGST.toLocaleString()}</span>
+                    </div>
+                  );
+                })}
+                
                 <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total:</span>
-                  <span>₹{calculateTotal().toLocaleString()}</span>
+                
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total GST:</span>
+                  <span>₹{calculateGST().toLocaleString()}</span>
                 </div>
                 
                 {showProfitInfo && (
@@ -536,7 +538,6 @@ export default function Billing() {
         </div>
       </div>
       
-      {/* QR Scanner Dialog */}
       <Dialog open={showQrScannerDialog} onOpenChange={setShowQrScannerDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -563,7 +564,6 @@ export default function Billing() {
         </DialogContent>
       </Dialog>
       
-      {/* WhatsApp Share Modal */}
       <WhatsAppShareModal
         open={showShareModal}
         onOpenChange={setShowShareModal}
