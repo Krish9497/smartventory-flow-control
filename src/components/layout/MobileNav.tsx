@@ -1,5 +1,7 @@
-
-import { X, Home, LayoutDashboard, Package, FileText, Receipt, BarChart3, MessageSquare, Settings, Moon, Sun, Palette } from "lucide-react";
+import { 
+  X, Home, LayoutDashboard, Package, FileText, Receipt, BarChart3, 
+  MessageSquare, Settings, Moon, Sun, Palette
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,11 +14,16 @@ import {
 interface MobileNavProps {
   isOpen: boolean;
   toggleNav: () => void;
-  setTheme: (theme: "light" | "dark" | "classic" | "modern") => void;
+  setTheme: (theme: "light" | "dark" | "classic" | "modern" | "luxury") => void;
   currentTheme: string;
 }
 
-export default function MobileNav({ isOpen, toggleNav, setTheme, currentTheme }: MobileNavProps) {
+export default function MobileNav({ 
+  isOpen, 
+  toggleNav, 
+  setTheme, 
+  currentTheme 
+}: MobileNavProps) {
   if (!isOpen) return null;
 
   return (
@@ -68,6 +75,10 @@ export default function MobileNav({ isOpen, toggleNav, setTheme, currentTheme }:
                 <DropdownMenuItem onClick={() => setTheme("modern")}>
                   <Palette className="mr-2 h-4 w-4" />
                   <span>Modern</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("luxury")}>
+                  <Palette className="mr-2 h-4 w-4" />
+                  <span>Luxury</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

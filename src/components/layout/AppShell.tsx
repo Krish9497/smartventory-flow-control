@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { MobileHeader } from "./MobileHeader";
@@ -10,7 +9,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const [theme, setTheme] = useState<"light" | "dark" | "classic" | "modern">(
+  const [theme, setTheme] = useState<"light" | "dark" | "classic" | "modern" | "luxury">(
     () => (localStorage.getItem("theme") as any) || "light"
   );
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -21,7 +20,7 @@ export function AppShell({ children }: AppShellProps) {
     localStorage.setItem("theme", theme);
     
     // Apply dark class based on theme
-    if (theme === "dark" || theme === "modern") {
+    if (theme === "dark" || theme === "modern" || theme === "luxury") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Settings as SettingsIcon,
@@ -49,7 +48,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 export default function Settings() {
-  const [theme, setTheme] = useState<"light" | "dark" | "classic" | "modern">(
+  const [theme, setTheme] = useState<"light" | "dark" | "classic" | "modern" | "luxury">(
     () => (localStorage.getItem("theme") as any) || "light"
   );
   const [storeSettings, setStoreSettings] = useState({
@@ -73,13 +72,10 @@ export default function Settings() {
     lastBackup: "Never",
   });
   
-  // Update theme in localStorage and apply it
   useEffect(() => {
-    // Update theme in localStorage
     localStorage.setItem("theme", theme);
     
-    // Apply dark class based on theme
-    if (theme === "dark" || theme === "modern") {
+    if (theme === "dark" || theme === "modern" || theme === "luxury") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
@@ -92,7 +88,6 @@ export default function Settings() {
   };
   
   const handleSaveStoreSettings = () => {
-    // Save store settings to localStorage
     localStorage.setItem("storeSettings", JSON.stringify(storeSettings));
     toast.success("Store settings saved successfully!");
   };
@@ -102,7 +97,6 @@ export default function Settings() {
   };
   
   const handleSaveTaxSettings = () => {
-    // Save tax settings to localStorage
     localStorage.setItem("taxSettings", JSON.stringify(taxSettings));
     toast.success("Tax settings saved successfully!");
   };
@@ -112,7 +106,6 @@ export default function Settings() {
   };
   
   const handleSaveBackupSettings = () => {
-    // Save backup settings to localStorage
     localStorage.setItem("backupSettings", JSON.stringify(backupSettings));
     toast.success("Backup settings saved successfully!");
   };
@@ -172,7 +165,6 @@ export default function Settings() {
           </TabsTrigger>
         </TabsList>
         
-        {/* General Settings Tab */}
         <TabsContent value="general">
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="md:col-span-2">
@@ -185,7 +177,7 @@ export default function Settings() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Theme</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                     <div 
                       className={`border rounded-lg p-4 cursor-pointer hover:border-primary transition-all ${
                         theme === "light" ? "border-primary bg-primary/5" : ""
@@ -257,6 +249,24 @@ export default function Settings() {
                         Contemporary look
                       </p>
                     </div>
+                    
+                    <div 
+                      className={`border rounded-lg p-4 cursor-pointer hover:border-primary transition-all ${
+                        theme === "luxury" ? "border-primary bg-primary/5" : ""
+                      }`}
+                      onClick={() => setTheme("luxury")}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <Palette className="h-6 w-6 text-purple-500" />
+                        {theme === "luxury" && (
+                          <Check className="h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                      <h3 className="font-medium">Luxury</h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Elegant, sophisticated design
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -325,7 +335,6 @@ export default function Settings() {
           </div>
         </TabsContent>
         
-        {/* Store Settings Tab */}
         <TabsContent value="store">
           <Card>
             <CardHeader>
@@ -419,7 +428,6 @@ export default function Settings() {
           </Card>
         </TabsContent>
         
-        {/* Tax Settings Tab */}
         <TabsContent value="tax">
           <Card>
             <CardHeader>
@@ -511,7 +519,6 @@ export default function Settings() {
           </div>
         </TabsContent>
         
-        {/* Backup Settings Tab */}
         <TabsContent value="backup">
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="md:col-span-2">
